@@ -58,7 +58,25 @@ Get-WMIObject Win32_SerialPort
 
 ---
 
-## **4. Run the HuskyLens Tracking Script**
+## **4. Camera Spatial Resolution Calibration**
+
+Setup four large April tags as four corner of a square, and measure the width and height of the square. The dimension should reflect the distance between the central position of the tags.
+
+Change `x_diff_physical` and `y_diff_physical` to the measured width and height.
+
+Set the camera to **Tag Recognition** mode.
+
+Execute the camera calibration script:
+
+```bash
+python camera_calibration.py
+```
+
+Get the output of `cm_per_pixel_x` and `cm_per_pixel_y` from terminal.
+
+## **5. Run the HuskyLens Tracking Script**
+
+Change the value of `cm_per_pixel_x` and `cm_per_pixel_y` to the result from last step
 
 Execute the main tracking script:
 
@@ -75,7 +93,8 @@ Change `/dev/cu.usbserial-10` to match your system’s detected port.
 
 ---
 
-## **5. Exit the Virtual Environment**
+
+## **6. Exit the Virtual Environment**
 When done, deactivate the virtual environment:
 
 ```bash
