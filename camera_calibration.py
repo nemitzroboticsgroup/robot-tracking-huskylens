@@ -1,14 +1,33 @@
 import time
 from huskylib import HuskyLensLibrary
+import numpy as np
 
 # Initialize HuskyLens (adjust port as needed)
-hl = HuskyLensLibrary("SERIAL", "/dev/tty.usbserial-1430", 3000000)
+hl = HuskyLensLibrary("SERIAL", "/dev/tty.usbserial-11420", 3000000)
 
-x_diff_physical = 70 # width of the square for calibration, cm
-y_diff_physical = 70 # height of the square for calibration, cm
+width_physical = 43 # width of the square for calibration, cm
+height_physical = 43 # height of the square for calibration, cm
 
 cm_per_pixel_x_all = []
 cm_per_pixel_y_all = []
+
+def euclidean_distance(p1, p2):
+    return np.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
+
+def calculate_width_height(corners):
+    distances = []
+    for i in range(4):
+        for j in range(i + 1, 4):
+            dist = euclidean_distance(corners[i], corners[j])
+            distances.append((dist, (i, j)))  # Store the distance and point indices
+
+    # Sort distances in descending order
+    distances.sort(reverse=True, key=lambda x: x[0])
+
+    width = (distances[2][0]+ distances[3][0]) / 2
+    height = (distances[4][0]+ distances[5][0]) / 2
+
+    return width, height
 
 print("Calibrating camera resolution with April Tag... Press Ctrl+C to stop.")
 
@@ -17,21 +36,18 @@ try:
         tag = hl.requestAll()
         if tag and isinstance(tag, list):
             if len(tag) == 4:
-                x_all = []
-                y_all = []
+                corners = []
                 print("Detected 4 tags")
                 for obj in tag:
                     if obj.type == "BLOCK":  # Ensure we're tracking a block/tag
                         print(f"Tag Position -> X: {obj.x:d}, Y: {obj.y:d}")
-                        x_all.append(obj.x)
-                        y_all.append(obj.y)
+                        corners.append((obj.x, obj.y))
 
-                x_diff_img = ((x_all[1]-x_all[0]) + (x_all[3]-x_all[2])) / 2
-                y_diff_img = ((y_all[2]-y_all[0]) + (y_all[3]-y_all[1])) / 2
-                print(f"x_diff: {x_diff_img:.1f}, y_diff: {y_diff_img:.1f}")
+                width, height = calculate_width_height(corners)
+                print(f"Detected length in pixel -> width: {width:.2f}, height: {height:.2f}")
 
-                cm_per_pixel_x = x_diff_physical / x_diff_img
-                cm_per_pixel_y = y_diff_physical / y_diff_img
+                cm_per_pixel_x = width_physical / width
+                cm_per_pixel_y = height_physical / height
                 cm_per_pixel_x_all.append(cm_per_pixel_x)
                 cm_per_pixel_y_all.append(cm_per_pixel_y)
                 print(f"cm_per_pixel_x: {cm_per_pixel_x:.3f}, cm_per_pixel_y: {cm_per_pixel_y:.3f}")
