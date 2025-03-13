@@ -36,7 +36,7 @@ venv\Scripts\activate
 Install dependencies:
 
 ```bash
-pip install pyserial pypng
+pip install pyserial pypng numpy
 ```
 
 ---
@@ -60,9 +60,9 @@ Get-WMIObject Win32_SerialPort
 
 ## **4. Camera Spatial Resolution Calibration**
 
-Setup four large April tags as four corner of a square, and measure the width and height of the square. The dimension should reflect the distance between the central position of the tags.
+Setup four large April tags as four corner of a square, and measure the width and height of the square. The dimension should reflect the distance between the central position of the tags. Ideally, the width align with the x-axis of the image, and height align with the y-axis of the image.
 
-Change `x_diff_physical` and `y_diff_physical` to the measured width and height.
+Change `width_physical` and `height_physical` to the measured width and height.
 
 Set the camera to **Tag Recognition** mode.
 
@@ -72,7 +72,7 @@ Execute the camera calibration script:
 python camera_calibration.py
 ```
 
-Get the output of `cm_per_pixel_x` and `cm_per_pixel_y` from terminal.
+Get the output of `cm_per_pixel_x` and `cm_per_pixel_y` from terminal. They should be very similar values.
 
 ## **5. Run the HuskyLens Tracking Script**
 
